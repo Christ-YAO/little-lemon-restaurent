@@ -4,10 +4,7 @@ import {
   MAX_GUESTS,
   MIN_GUESTS,
   OCCASIONS,
-  TIME_SLOTS,
   formatDateForInput,
-  isTimeInPastForDate,
-  isTodayLocal,
   startOfTodayLocal,
   validateBookingForm,
 } from '../utils/bookingValidation';
@@ -23,7 +20,6 @@ const INITIAL = {
   notes: '',
 };
 
-// shadcn-style icon set (inline SVGs, currentColor)
 function CalendarIcon(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden focusable="false" {...props}>
@@ -50,38 +46,44 @@ function AlertIcon(props) {
   );
 }
 
-function SpinnerIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden focusable="false" {...props}>
-      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-    </svg>
-  );
-}
-
-export default function BookingForm() {
+/**
+ * Formulaire de réservation — composant ENFANT pur.
+ *
+ * @param {string[]} availableTimes — créneaux fournis par le parent (BookingPage).
+ * @param {Function} dispatch — dispatch du reducer `updateTimes` du parent.
+ * @param {Function} submitForm — callback de soumission (validation côté parent).
+ * @param {object|null} confirmation — données de la dernière réservation confirmée.
+ */
+export default function BookingForm({
+  availableTimes = [],
+  dispatch,
+  submitForm,
+  confirmation = null,
+}) {
   const formId = useId();
   const [values, setValues] = useState(INITIAL);
   const [errors, setErrors] = useState({});
-  const [submitted, setSubmitted] = useState(false);
-  const [pending, setPending] = useState(false);
+  const [submittedAck, setSubmittedAck] = useState(false);
 
   const minDate = useMemo(() => formatDateForInput(startOfTodayLocal()), []);
 
-  const availableTimes = useMemo(() => {
-    if (!values.date || !isTodayLocal(values.date)) return TIME_SLOTS;
-    return TIME_SLOTS.filter((t) => !isTimeInPastForDate(values.date, t));
-  }, [values.date]);
-
   useEffect(() => {
-    if (values.date && values.time && isTodayLocal(values.date) && isTimeInPastForDate(values.date, values.time)) {
+    if (confirmation) {
+      setValues(INITIAL);
+      setErrors({});
+      setSubmittedAck(true);
+    }
+  }, [confirmation]);
+
+  // Si le créneau sélectionné n'est plus dans la liste fournie par le parent,
+  // on l'efface (par ex. après changement de date).
+  useEffect(() => {
+    if (values.time && !availableTimes.includes(values.time)) {
       setValues((v) => ({ ...v, time: '' }));
     }
-  }, [values.date, values.time]);
+  }, [availableTimes, values.time]);
 
   const fieldId = (name) => `${formId}-${name}`;
-
-  const timeHintVisible =
-    availableTimes.length === 0 && values.date && isTodayLocal(values.date);
 
   const onChange = (e) => {
     const { name, value } = e.target;
@@ -93,13 +95,20 @@ export default function BookingForm() {
         return next;
       });
     }
-    if (submitted) setSubmitted(false);
+    if (submittedAck) setSubmittedAck(false);
+  };
+
+  const onDateChange = (e) => {
+    onChange(e);
+    if (typeof dispatch === 'function') {
+      dispatch({ type: 'UPDATE_TIMES', date: e.target.value });
+    }
   };
 
   const onSubmit = (e) => {
     e.preventDefault();
-    setSubmitted(false);
-    const { errors: nextErrors, isValid } = validateBookingForm(values);
+    const slotsForValidator = availableTimes.length > 0 ? availableTimes : undefined;
+    const { errors: nextErrors, isValid } = validateBookingForm(values, slotsForValidator);
     setErrors(nextErrors);
     if (!isValid) {
       const order = ['fullName', 'email', 'phone', 'date', 'time', 'guests', 'occasion', 'notes'];
@@ -107,40 +116,33 @@ export default function BookingForm() {
       if (first) document.getElementById(fieldId(first))?.focus();
       return;
     }
-    setPending(true);
-    try {
-      setSubmitted(true);
-      setValues(INITIAL);
-      setErrors({});
-    } finally {
-      setPending(false);
-    }
+    if (typeof submitForm === 'function') submitForm(values);
   };
 
   const onReset = () => {
     setValues(INITIAL);
     setErrors({});
-    setSubmitted(false);
+    setSubmittedAck(false);
   };
 
   return (
     <section className="card" aria-labelledby={`${formId}-title`}>
-      <header className="card__header">
-        <h1 className="card__title" id={`${formId}-title`}>
-          Réserver une table
-        </h1>
+      <div className="card__header">
+        <h3 className="card__title" id={`${formId}-title`}>
+          Détails de la réservation
+        </h3>
         <p className="card__description">
-          Indiquez les détails de votre venue — nous confirmons votre réservation par e-mail.
+          Les champs marqués sont obligatoires. La validation est effectuée côté client.
         </p>
-      </header>
+      </div>
 
-      {submitted ? (
+      {submittedAck ? (
         <output className="alert alert--success" aria-live="polite">
           <CheckIcon className="alert__icon" />
           <div>
             <p className="alert__title">Réservation envoyée</p>
             <p className="alert__text">
-              Merci ! Nous revenons vers vous dans les plus brefs délais.
+              Merci ! Un e-mail de confirmation vous a été envoyé.
             </p>
           </div>
         </output>
@@ -148,11 +150,7 @@ export default function BookingForm() {
 
       <form className="card__content" onSubmit={onSubmit} noValidate>
         <div className="grid">
-          <Field
-            id={fieldId('fullName')}
-            label="Nom complet"
-            error={errors.fullName}
-          >
+          <Field id={fieldId('fullName')} label="Nom complet" error={errors.fullName}>
             <input
               id={fieldId('fullName')}
               name="fullName"
@@ -168,11 +166,7 @@ export default function BookingForm() {
             />
           </Field>
 
-          <Field
-            id={fieldId('email')}
-            label="Adresse e-mail"
-            error={errors.email}
-          >
+          <Field id={fieldId('email')} label="Adresse e-mail" error={errors.email}>
             <input
               id={fieldId('email')}
               name="email"
@@ -189,11 +183,7 @@ export default function BookingForm() {
             />
           </Field>
 
-          <Field
-            id={fieldId('phone')}
-            label="Téléphone"
-            error={errors.phone}
-          >
+          <Field id={fieldId('phone')} label="Téléphone" error={errors.phone}>
             <input
               id={fieldId('phone')}
               name="phone"
@@ -245,7 +235,7 @@ export default function BookingForm() {
               className="input"
               min={minDate}
               value={values.date}
-              onChange={onChange}
+              onChange={onDateChange}
               aria-invalid={Boolean(errors.date)}
               aria-describedby={errors.date ? `${fieldId('date')}-err` : undefined}
               required
@@ -257,11 +247,11 @@ export default function BookingForm() {
             label="Heure"
             error={errors.time}
             description={
-              timeHintVisible
-                ? 'Plus de créneaux disponibles aujourd’hui — choisissez une autre date.'
-                : null
+              availableTimes.length === 0
+                ? 'Plus de créneau disponible — sélectionnez une autre date.'
+                : `${availableTimes.length} créneaux disponibles`
             }
-            descriptionId={timeHintVisible ? `${fieldId('time')}-hint` : undefined}
+            descriptionId={`${fieldId('time')}-hint`}
           >
             <select
               id={fieldId('time')}
@@ -271,13 +261,10 @@ export default function BookingForm() {
               onChange={onChange}
               aria-invalid={Boolean(errors.time)}
               aria-describedby={
-                errors.time
-                  ? `${fieldId('time')}-err`
-                  : timeHintVisible
-                    ? `${fieldId('time')}-hint`
-                    : undefined
+                errors.time ? `${fieldId('time')}-err` : `${fieldId('time')}-hint`
               }
               required
+              disabled={availableTimes.length === 0}
             >
               <option value="">Choisir une heure</option>
               {availableTimes.map((t) => (
@@ -340,26 +327,18 @@ export default function BookingForm() {
           </Field>
         </div>
 
-        <footer className="card__footer">
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={onReset}
-            disabled={pending}
-          >
+        <div className="card__footer">
+          <button type="button" className="btn btn--ghost" onClick={onReset}>
             Réinitialiser
           </button>
-          <button type="submit" className="btn btn--primary" disabled={pending}>
-            {pending ? (
-              <>
-                <SpinnerIcon className="btn__icon btn__icon--spin" />
-                Envoi…
-              </>
-            ) : (
-              'Confirmer la réservation'
-            )}
+          <button
+            type="submit"
+            className="btn btn--primary"
+            disabled={availableTimes.length === 0}
+          >
+            Confirmer la réservation
           </button>
-        </footer>
+        </div>
       </form>
     </section>
   );

@@ -8,34 +8,34 @@ export const MAX_GUESTS = 10;
 
 /** Half-hour slots from 17:00 to 22:00 (last seating). */
 export const TIME_SLOTS = [
-  '17:00',
-  '17:30',
-  '18:00',
-  '18:30',
-  '19:00',
-  '19:30',
-  '20:00',
-  '20:30',
-  '21:00',
-  '21:30',
-  '22:00',
+  "17:00",
+  "17:30",
+  "18:00",
+  "18:30",
+  "19:00",
+  "19:30",
+  "20:00",
+  "20:30",
+  "21:00",
+  "21:30",
+  "22:00",
 ];
 
 export const OCCASIONS = [
-  { value: '', label: 'Choisir une occasion' },
-  { value: 'birthday', label: 'Anniversaire' },
-  { value: 'anniversary', label: 'Anniversaire de mariage' },
-  { value: 'business', label: 'Repas d’affaires' },
-  { value: 'other', label: 'Autre' },
+  { value: "", label: "Choisir une occasion" },
+  { value: "birthday", label: "Anniversaire" },
+  { value: "anniversary", label: "Anniversaire de mariage" },
+  { value: "business", label: "Repas d’affaires" },
+  { value: "other", label: "Autre" },
 ];
 
 export function isNonEmptyString(value) {
-  return typeof value === 'string' && value.trim().length > 0;
+  return typeof value === "string" && value.trim().length > 0;
 }
 
 export function isValidGuestCount(value) {
   const n =
-    typeof value === 'string' && value.trim() !== ''
+    typeof value === "string" && value.trim() !== ""
       ? Number(value.trim())
       : Number(value);
   if (!Number.isInteger(n) || Number.isNaN(n)) return false;
@@ -51,7 +51,7 @@ export function isValidEmail(email) {
 
 export function isValidPhone(phone) {
   if (!isNonEmptyString(phone)) return false;
-  const digits = phone.replace(/\D/g, '');
+  const digits = phone.replace(/\D/g, "");
   return digits.length >= 8 && digits.length <= 15;
 }
 
@@ -63,7 +63,7 @@ export function isValidFullName(name) {
 /** yyyy-mm-dd expected from <input type="date" /> */
 export function parseDateInputLocal(dateStr) {
   if (!isNonEmptyString(dateStr)) return null;
-  const parts = dateStr.split('-').map((p) => Number(p));
+  const parts = dateStr.split("-").map((p) => Number(p));
   if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) return null;
   const [y, m, d] = parts;
   const dt = new Date(y, m - 1, d);
@@ -96,7 +96,7 @@ export function isTimeInPastForDate(dateStr, timeStr) {
   if (!isNonEmptyString(dateStr) || !isNonEmptyString(timeStr)) return false;
   const parsed = parseDateInputLocal(dateStr);
   if (!parsed) return false;
-  const [hh, mm] = timeStr.split(':').map((n) => Number(n));
+  const [hh, mm] = timeStr.split(":").map((n) => Number(n));
   if (Number.isNaN(hh) || Number.isNaN(mm)) return false;
   const when = new Date(
     parsed.getFullYear(),
@@ -105,53 +105,56 @@ export function isTimeInPastForDate(dateStr, timeStr) {
     hh,
     mm,
     0,
-    0
+    0,
   );
   return when.getTime() < Date.now();
 }
 
-export function isAllowedTimeSlot(timeStr) {
-  return TIME_SLOTS.includes(timeStr);
+export function isAllowedTimeSlot(timeStr, slots = TIME_SLOTS) {
+  return Array.isArray(slots) && slots.includes(timeStr);
 }
 
 /** yyyy-mm-dd for `<input type="date" min={...} />` */
 export function formatDateForInput(date) {
   const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
 
 /**
- * @param {object} values
+ * Validate a booking form.
+ * @param {object} values — the form state.
+ * @param {string[]} [availableSlots] — slots fournis par le parent (BookingPage).
+ *  Si non fournis, on tombe sur la liste statique TIME_SLOTS.
  * @returns {{ errors: Record<string, string>, isValid: boolean }}
  */
-export function validateBookingForm(values) {
+export function validateBookingForm(values, availableSlots = TIME_SLOTS) {
   const errors = {};
 
   if (!isValidFullName(values.fullName)) {
-    errors.fullName = 'Indiquez un nom d’au moins 2 caractères.';
+    errors.fullName = "Indiquez un nom d’au moins 2 caractères.";
   }
 
   if (!isValidEmail(values.email)) {
-    errors.email = 'Adresse e-mail invalide (ex. : nom@exemple.com).';
+    errors.email = "Adresse e-mail invalide (ex. : nom@exemple.com).";
   }
 
   if (!isValidPhone(values.phone)) {
     errors.phone =
-      'Numéro invalide : au moins 8 chiffres, au plus 15 (espaces et + acceptés).';
+      "Numéro invalide : au moins 8 chiffres, au plus 15 (espaces et + acceptés).";
   }
 
   if (!isNonEmptyString(values.date)) {
-    errors.date = 'Choisissez une date.';
+    errors.date = "Choisissez une date.";
   } else if (isDateInPast(values.date)) {
-    errors.date = 'La date ne peut pas être dans le passé.';
+    errors.date = "La date ne peut pas être dans le passé.";
   }
 
   if (!isNonEmptyString(values.time)) {
-    errors.time = 'Choisissez une heure.';
-  } else if (!isAllowedTimeSlot(values.time)) {
-    errors.time = 'Heure non proposée par le restaurant.';
+    errors.time = "Choisissez une heure.";
+  } else if (!isAllowedTimeSlot(values.time, availableSlots)) {
+    errors.time = "Heure non proposée par le restaurant.";
   } else if (
     isNonEmptyString(values.date) &&
     !isDateInPast(values.date) &&
@@ -159,7 +162,7 @@ export function validateBookingForm(values) {
     isTimeInPastForDate(values.date, values.time)
   ) {
     errors.time =
-      'Cette heure est déjà passée pour aujourd’hui. Choisissez une autre heure ou une autre date.';
+      "Cette heure est déjà passée pour aujourd’hui. Choisissez une autre heure ou une autre date.";
   }
 
   if (!isValidGuestCount(values.guests)) {
@@ -167,12 +170,12 @@ export function validateBookingForm(values) {
   }
 
   if (!isNonEmptyString(values.occasion)) {
-    errors.occasion = 'Sélectionnez une occasion.';
+    errors.occasion = "Sélectionnez une occasion.";
   }
 
-  const notes = String(values.notes ?? '');
+  const notes = String(values.notes ?? "");
   if (notes.length > 500) {
-    errors.notes = 'Votre message ne peut pas dépasser 500 caractères.';
+    errors.notes = "Votre message ne peut pas dépasser 500 caractères.";
   }
 
   const keys = Object.keys(errors);

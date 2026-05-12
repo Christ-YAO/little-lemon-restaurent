@@ -1,64 +1,84 @@
-.app-shell {
+/* Shared button system (shadcn-inspired) */
+.btn {
   position: relative;
-  min-height: 100%;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  justify-items: center;
-  gap: 1.5rem;
-  padding: 2.5rem 1rem 3rem;
-  isolation: isolate;
-}
-
-.app-shell__bg {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(
-      circle at 18% 12%,
-      hsl(var(--accent) / 0.22),
-      transparent 38%
-    ),
-    radial-gradient(
-      circle at 86% 92%,
-      hsl(var(--warm) / 0.2),
-      transparent 42%
-    ),
-    radial-gradient(circle at 1px 1px, hsl(var(--primary) / 0.12) 1px, transparent 0)
-      0 0 / 22px 22px,
-    hsl(var(--background));
-}
-
-.brand {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding-top: 1rem;
+  height: 2.75rem;
+  padding: 0 1.35rem;
+  font: inherit;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color 180ms var(--ease),
+    color 180ms var(--ease),
+    border-color 180ms var(--ease),
+    box-shadow 180ms var(--ease),
+    transform 140ms var(--ease);
+  will-change: transform;
 }
 
-.brand__logo {
-  height: 52px;
-  width: auto;
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-glow);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.btn--accent {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+  box-shadow:
+    0 1px 0 rgb(15 23 24 / 0.06),
+    0 6px 18px -8px hsl(var(--accent) / 0.6);
+}
+
+.btn--accent:hover:not(:disabled) {
+  background: hsl(50 92% 56%);
+  box-shadow:
+    0 1px 0 rgb(15 23 24 / 0.08),
+    0 10px 24px -8px hsl(var(--accent) / 0.7);
+  transform: translateY(-1px);
+}
+
+.btn--compact {
+  height: 2.35rem;
+  padding: 0 1.1rem;
+  font-size: 0.875rem;
+}
+
+main {
   display: block;
 }
 
-.brand__tagline {
-  margin: 0;
-  font-size: 0.875rem;
-  color: hsl(var(--muted-foreground));
-  letter-spacing: 0.02em;
-}
+/* Soft fade-in for section headings to feel polished */
+@media (prefers-reduced-motion: no-preference) {
+  section {
+    animation: rise 540ms var(--ease) both;
+  }
 
-.brand-footer {
-  margin-top: 0.5rem;
-  font-size: 0.8125rem;
-  color: hsl(var(--muted-foreground));
-  text-align: center;
-}
-
-@media (max-width: 640px) {
-  .app-shell {
-    padding: 1.5rem 0.75rem 2.5rem;
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 }

@@ -1,24 +1,40 @@
 @import url('https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700;800&family=Markazi+Text:wght@500;600;700&display=swap');
 
 :root {
-  /* Little Lemon palette mapped to shadcn tokens (HSL channels) */
-  --background: 45 60% 97%; /* warm cream */
-  --foreground: 0 0% 20%; /* #333 */
+  /* Little Lemon palette (shadcn-style HSL tokens) */
+  --background: 45 55% 97%;
+  --foreground: 162 12% 16%;
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 20%;
-  --muted: 90 11% 93%; /* #edefee */
-  --muted-foreground: 160 13% 33%; /* green for hints */
-  --border: 160 12% 86%;
-  --input: 160 12% 86%;
-  --primary: 160 13% 33%; /* Little Lemon green #495E57 */
+  --card-foreground: 162 12% 16%;
+  --muted: 90 14% 94%;
+  --muted-foreground: 160 12% 38%;
+  --border: 160 14% 88%;
+  --input: 160 14% 86%;
+  --primary: 160 14% 30%;
   --primary-foreground: 0 0% 100%;
-  --accent: 50 91% 52%; /* yellow #F4CE14 */
-  --accent-foreground: 0 0% 20%;
-  --warm: 19 78% 69%; /* salmon #EE9972 */
-  --ring: 160 13% 33%;
+  --accent: 50 92% 52%;
+  --accent-foreground: 162 12% 16%;
+  --warm: 19 78% 64%;
+  --ring: 160 14% 30%;
   --destructive: 0 70% 45%;
   --success: 142 60% 32%;
-  --radius: 0.875rem;
+
+  --radius: 1rem;
+  --radius-sm: 0.55rem;
+
+  --shadow-sm: 0 1px 2px rgb(15 23 24 / 0.04);
+  --shadow-md:
+    0 1px 2px rgb(15 23 24 / 0.04),
+    0 6px 14px -8px rgb(15 23 24 / 0.12);
+  --shadow-lg:
+    0 1px 2px rgb(15 23 24 / 0.04),
+    0 16px 40px -12px rgb(15 23 24 / 0.18);
+  --shadow-xl:
+    0 2px 4px rgb(15 23 24 / 0.04),
+    0 28px 60px -18px rgb(15 23 24 / 0.25);
+  --shadow-glow: 0 0 0 8px hsl(var(--accent) / 0.18);
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   --font-serif: 'Markazi Text', Georgia, 'Times New Roman', serif;
   --font-sans: 'Karla', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -40,9 +56,36 @@ body {
   margin: 0;
   font-family: var(--font-sans);
   font-size: 15px;
-  line-height: 1.55;
+  line-height: 1.6;
   color: hsl(var(--foreground));
-  background: hsl(var(--background));
+  background:
+    radial-gradient(
+      ellipse 90% 60% at 50% 0%,
+      hsl(var(--accent) / 0.08),
+      transparent 60%
+    ),
+    hsl(var(--background));
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: hsl(var(--accent) / 0.4);
+  color: hsl(var(--foreground));
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: inherit;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: none;
 }
