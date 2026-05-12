@@ -1,13 +1,48 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import url('https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700;800&family=Markazi+Text:wght@500;600;700&display=swap');
+
+:root {
+  /* Little Lemon palette mapped to shadcn tokens (HSL channels) */
+  --background: 45 60% 97%; /* warm cream */
+  --foreground: 0 0% 20%; /* #333 */
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 20%;
+  --muted: 90 11% 93%; /* #edefee */
+  --muted-foreground: 160 13% 33%; /* green for hints */
+  --border: 160 12% 86%;
+  --input: 160 12% 86%;
+  --primary: 160 13% 33%; /* Little Lemon green #495E57 */
+  --primary-foreground: 0 0% 100%;
+  --accent: 50 91% 52%; /* yellow #F4CE14 */
+  --accent-foreground: 0 0% 20%;
+  --warm: 19 78% 69%; /* salmon #EE9972 */
+  --ring: 160 13% 33%;
+  --destructive: 0 70% 45%;
+  --success: 142 60% 32%;
+  --radius: 0.875rem;
+
+  --font-serif: 'Markazi Text', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Karla', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.55;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

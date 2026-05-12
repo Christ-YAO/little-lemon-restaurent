@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# Little Lemon — réservation de table
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Application React (Create React App) pour le restaurant fictif **Little Lemon** (Chicago) : page d’accueil fidèle à la charte du cours (vert `#495E57`, jaune `#F4CE14`, saumon `#EE9972`) et **formulaire de réservation** avec validation, accessibilité et tests.
 
-## Available Scripts
+## Prérequis
 
-In the project directory, you can run:
+- [Node.js](https://nodejs.org/) **18+** (LTS recommandé)
+- npm (fourni avec Node)
 
-### `npm start`
+## Installation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+git clone <url-de-votre-depot>
+cd little-lemon-restaurent
+npm install
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Lancer le projet
 
-### `npm test`
+```bash
+npm start
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Ouvre [http://localhost:3000](http://localhost:3000) : navigation par ancres (`#menu`, `#reservations`, etc.), mise en page responsive et menu mobile (≤ 900px).
 
-### `npm run build`
+## Tests
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+npx react-scripts test --watchAll=false --runInBand
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+`--runInBand` évite parfois les avertissements de fermeture des workers Jest sous Windows.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Sous PowerShell, pour un mode non interactif :
 
-### `npm run eject`
+```powershell
+$env:CI="true"; npx react-scripts test --watchAll=false --runInBand
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Build production
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm run build
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Les fichiers statiques sont générés dans le dossier `build/`.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Structure du code
 
-## Learn More
+| Dossier / fichier | Rôle |
+|-------------------|------|
+| `src/components/Header.js` | En-tête, skip link, navigation, menu mobile |
+| `src/components/Hero.js` | Section héros + CTA vers le formulaire |
+| `src/components/About.js` | Section « À propos » (ancre `#about`) |
+| `src/components/Specials.js` | Spécialités (ancre `#menu`) |
+| `src/components/Testimonials.js` | Témoignages |
+| `src/components/BookingForm.js` | Formulaire de réservation |
+| `src/utils/bookingValidation.js` | Règles de validation pures (testables) |
+| `public/assets/icons_assets/` | Images et logos fournis avec le kit UI |
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Critères d’évaluation (pairs) — couverture
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. **UI / UX** : charte Little Lemon, typo Markazi Text + Karla, cartes spécialités, témoignages, héros avec visuel chef.
+2. **Accessibilité** : `lang="fr"`, lien d’évitement, `<main>`, `<nav aria-label>`, labels reliés aux champs, `aria-invalid` / `aria-describedby`, messages d’erreur en `role="alert"`, confirmation via `<output aria-live="polite">`.
+3. **Tests unitaires** : `src/utils/bookingValidation.test.js`, `src/components/BookingForm.test.js`, `src/App.test.js`.
+4. **Formulaire fonctionnel + validation** : nom, e-mail, téléphone, date (pas dans le passé), heure (créneaux 17:00–22:00, pas dans le passé si aujourd’hui), convives 1–10, occasion obligatoire, notes optionnelles (max 500 caractères).
+5. **Sémantique & responsive** : balises section/header/footer/address, grille CSS, breakpoints.
+6. **Dépôt Git** : à pousser sur votre plateforme (GitHub, GitLab, etc.) — ce dépôt est déjà initialisé avec `.git`.
+7. **Code maintenable** : composants découpés, validation isolée, commentaires ciblés sur la logique métier.
+8. **Cas limites** : date invalide, heure hors plage, créneaux épuisés le jour même, notes trop longues, e-mail / téléphone incorrects, focus sur le premier champ en erreur.
+9. **Documentation** : ce fichier + commandes ci-dessus.
 
-### Code Splitting
+## Licence / usage pédagogique
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Projet à usage de formation ; les images du dossier `public/assets/` proviennent du kit du cours.
